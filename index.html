@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WhatsApp">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <title>WhatsApp Android</title>
+
+    <style>
+        :root {
+            --wa-dark-green: #075E54;
+            --wa-light-green: #128C7E;
+            --wa-bg: #000000; /* Matches the iPhone top bar area */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--wa-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Android Style Top Navigation */
+        .android-header {
+            background-color: var(--wa-dark-green);
+            color: white;
+            /* Leaves space for the Clock/Battery/Dynamic Island */
+            padding-top: env(safe-area-inset-top); 
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 18px;
+            padding-right: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            z-index: 1000;
+            position: relative;
+        }
+
+        .brand-name {
+            font-size: 21px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 22px;
+            font-size: 19px;
+            opacity: 0.9;
+        }
+
+        /* The Frame for the Real WhatsApp Site */
+        #whatsapp-web-engine {
+            width: 100%;
+            /* Calculates height minus the header and safe area */
+            height: calc(100% - 65px - env(safe-area-inset-top));
+            border: none;
+            background: #fff;
+        }
+
+        /* Loading Screen (Splash) */
+        #splash {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #25D366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash">
+        <div class="loader"></div>
+    </div>
+
+    <div class="android-header">
+        <span class="brand-name">WhatsApp</span>
+        <div class="header-icons">
+            <span>🔍</span>
+            <span>⋮</span>
+        </div>
+    </div>
+
+    <iframe 
+        id="whatsapp-web-engine" 
+        src="https://web.whatsapp.com" 
+        allow="camera; microphone; clipboard-read; clipboard-write; geolocation"
+        onload="hideSplash()">
+    </iframe>
+
+    <script>
+        // Hides the white loading screen once WhatsApp loads
+        function hideSplash() {
+            const splash = document.getElementById('splash');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.style.display = 'none', 500);
+            }, 1000);
+        }
+
+        // Prevents users from accidentally "pulling down" the whole app
+        document.addEventListener('touchmove', function (e) {
+            if (e.target.tagName !== 'IFRAME') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Auto-refresh if connection is lost
+        window.addEventListener('offline', () => {
+            alert("No internet connection. Please check your network.");
+        });
+    </script>
+
+</body>
+</html>
